@@ -1,0 +1,39 @@
+## 1) Call peaks with macs2 broad
+## 2) Do TCseq time course
+## 3) Export dynamic peaks
+## 4) Generate clusters by k-means. Decided on 5.
+## 5) Exported each cluster as .bed file
+
+## Sort the cluster coordinates to obtain a list for computeMatrix (2025_07_24_TCseq_WT_MATAC_DynK5_processClusters.R)
+## Import new .bed files to epipax
+
+
+## ---- WT ---- ##
+
+## -- Calculate computeMatrix
+computeMatrix scale-regions \
+-R \
+Cluster_1_ordered.bed3 \
+Cluster_2_ordered.bed3 \
+Cluster_3_ordered.bed3 \
+Cluster_4_ordered.bed3 \
+Cluster_5_ordered.bed3 \
+-S \
+WT_D0_MATAC_mergedreps_trimV6_mm10_rmDup_q10_b1_s0_CPM.bw \
+MATAC/WT_D2_MATAC_mergedreps_trimV6_mm10_rmDup_q10_b1_s0_CPM.bw \
+MATAC/WT_D4_MATAC_mergedreps_trimV6_mm10_rmDup_q10_b1_s0_CPM.bw \
+--binSize 25 \
+--sortRegions keep \
+--missingDataAsZero \
+--blackListFileName mm10_blackList_ENCFF547MET.bed \
+--outFileName WT_D0-D2-D4_MATACsignal_K5_sorted.gz
+
+## -- Plot heatmap
+plotHeatmap -m WT_D0-D2-D4_MATACsignal_K5_sorted.gz \
+-o WT_D0-D2-D4_MATACsignal_K5_sorted.png \
+--colorMap RdBu_r \
+--sortRegions keep \
+--regionsLabel "c1" "c2" "c3" "c4" "c5" \
+--samplesLabel "WT-D0" "WT-D2" "WT-D4" \
+--startLabel "5'" \
+--endLabel "3'"
