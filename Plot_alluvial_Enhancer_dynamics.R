@@ -1,0 +1,42 @@
+## 2025.09.22
+## K4me1-defined Enhancer Dynamics: Analyzing category swapping through differentiation (D0->D2->D4)
+library(ggplot2)
+library(ggalluvial)
+
+setwd("/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Results/Set_operations/Enhancers_intersect_v3/")
+gen <- "WT"
+
+## Import all enhancers
+Name_file <- paste(gen,"_Enhancer_peakome/",gen,"_Master_Enhancer_Peakome_v3_single-class.bed", sep = "")
+Enhancers <- read.table(file = Name_file, header = FALSE, sep = '\t')
+colnames(Enhancers) <- c("chr", "start", "end", "D0_class", "D2_class", "D4_class")
+Enhancers$D0_class <- factor(Enhancers$D0_class, levels = c("actv", "prim", "inac", "othr"))
+Enhancers$D2_class <- factor(Enhancers$D2_class, levels = c("actv", "prim", "inac", "othr"))
+Enhancers$D4_class <- factor(Enhancers$D4_class, levels = c("actv", "prim", "inac", "othr"))
+
+
+## -- Enhancer flow between days
+## Simplify the data.frame by counting the frequency of each combination of states (4x4x4 - 1; 63 columns instead of >140K)
+Cats <- Enhancers[, c("D0_class", "D2_class", "D4_class")]
+Cats <- lamisc::count_duplicates(Cats)
+Cats <- dplyr::arrange(Cats, D0_class, D2_class, D4_class)
+
+## How abundant is each combination?
+quantile(Cats$dupe_count)
+
+## Plot flow
+p <- ggplot(data = Cats, aes(axis1 = D0_class, axis2 = D2_class, axis3 = D4_class, y = dupe_count)) +
+  geom_alluvium(aes(fill = D0_class), alpha = 0.75) +
+  scale_fill_manual(values = c("#E5614E", "#F0AC4B", "#77BEF0", "#bfbfbfe6")) +
+  geom_stratum() +
+  geom_text(stat = "stratum", aes(label = after_stat(stratum))) +
+  scale_x_continuous(breaks = 1:3, labels = c("D0", "D2", "D4")) +
+  theme_void() + theme(legend.position = "none")
+p
+
+## Export plot
+Name_plot <- paste(gen,"_Master_Enhancer_Peakome_v3_Flux.pdf", sep = "")
+ggsave(filename = Name_plot, plot = p, device = "pdf",
+       path = paste("/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Plots/Set_operations/Enhancers_intersect_v3/",gen,"_Enhancer_peakome/", sep = ""),
+       width = 12, height = 10, units = "cm")
+
