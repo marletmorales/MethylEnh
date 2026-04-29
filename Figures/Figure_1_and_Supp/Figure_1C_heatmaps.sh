@@ -1,8 +1,8 @@
-## Figure 1C: WT Heatmap panels
+## WT heatmaps: M-ATAC signal 
+## Figure 1C and Supplemental Figure 1B,D
 
 ## -- Plot DNA accessibility and methylation with ordered clusters
 cd /scratch/Marlet/
-
 
 ## ----------------------------------------------
 ## ------------- Dynamic (DA) peaks -------------
