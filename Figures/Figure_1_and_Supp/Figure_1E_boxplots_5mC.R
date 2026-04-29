@@ -1,6 +1,5 @@
-## 25.08.2025
-## Figure 1 panel E: spaghetti plots of 5mC trends
-## 13.10.2025: Convert to boxplot (equivalent to not connect dots during days)
+## Plotting DNAme of MATAC and WGBS, separated by cluster
+## Figure 1E and Supplemental Figure 1E
 library(ggplot2)
 library(tidyr)
 library(stringr)
@@ -31,7 +30,7 @@ All_data$coord <- str_c(str_c(All_data$chr, All_data$start, sep = ":"), All_data
 length(unique(All_data$coord))
 rm(list = c("WT_D0_MATAC", "WT_D2_MATAC", "WT_D4_MATAC", "WT_D0_WGBS", "WT_D2_WGBS", "WT_D4_WGBS"))
 
-## -- Read Dynamic peaks (44K)
+## -- Read dynamic peaks
 Peaks_DA <- read.table(file = "/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Results/TCseq/WT_MATAC_v1/Dynamic/K5/bed/All_clusters_labeled.bed", header = FALSE, sep = '\t')
 colnames(Peaks_DA) <- c("chr","start","end","cluster")
 
@@ -48,9 +47,8 @@ All_data <- All_data[, c("chr", "start", "end", "coord", "cluster",
                          "num.cpgs_WT_D2_WGBS", "meth.wmean_WT_D2_WGBS",
                          "num.cpgs_WT_D4_WGBS", "meth.wmean_WT_D4_WGBS")]
 
-
-## -------------------------
-## ---- Spaghetti plots ----
+## ----------------------------------
+## ---- Barplots clustered peaks ----
 
 Clust_data <- filter(All_data, cluster != "none")
 ## Remove unnecessary columns
@@ -67,20 +65,8 @@ Day_tech <- str_split_fixed(string = Day_tech, pattern = "_", n = 2)
 Clust_data$Day <- Day_tech[,1]
 Clust_data$Tech <- Day_tech[,2]
 
-# ## Calculate mean DNAme based on the cluster and dataset
-# Clust_stats <- Clust_data |> group_by(cluster, Dataset) |> summarise(mean = mean(meth.wmean),
-#                                                                      q25 = quantile(meth.wmean, 0.25),
-#                                                                      q50 = quantile(meth.wmean, 0.50),
-#                                                                      q75 = quantile(meth.wmean, 0.75))
-# ## Split $Dataset into two: day and technique
-# Day_tech <- gsub(pattern = "meth.wmean_WT_", replacement = "", x = Clust_stats$Dataset)
-# Day_tech <- str_split_fixed(string = Day_tech, pattern = "_", n = 2)
-# Clust_stats$Day <- Day_tech[,1]
-# Clust_stats$Tech <- Day_tech[,2]
-
 ## -- Plot per cluster
 
-## Boxplot
 p1 <- ggplot(Clust_data[Clust_data$cluster == "c1",], aes(x = Day, y = meth.wmean, fill = Tech)) +
   geom_boxplot(outliers = FALSE, alpha = 0.75) +
   coord_cartesian(ylim = c(0,100)) +
@@ -89,19 +75,6 @@ p1 <- ggplot(Clust_data[Clust_data$cluster == "c1",], aes(x = Day, y = meth.wmea
 p1
 #ggsave(filename = "Cluster_1_boxplot.pdf", plot = p1, device = "pdf", path = "/Users/user/Dropbox/Greenberg Lab Sharing/Collaborations/MethylEnh/Manuscript/Figures/Figure_1/Panel-D_Spaghetti/", width = 8, height = 8, units = "cm")
 
-# ## Spaghetti
-# p1 <- ggplot(Clust_stats[Clust_stats$cluster == "c1",], aes(x = Day, y = q50, group = Tech)) +
-#   geom_point(aes(y = q50, color = Tech)) +
-#   geom_line(aes(y = q50, color = Tech,)) +
-#   geom_ribbon(aes(ymin = q25, ymax = q75, fill = Tech), alpha = 0.2) +
-#   coord_cartesian(ylim = c(0,100)) +
-#   labs(y = "% DNAme", x = "c1 - Day") +
-#   theme_bw() + theme(legend.position = "none")
-# p1
-# #ggsave(filename = "Cluster_1_median_ribbon.pdf", plot = p1, device = "pdf", path = "/Users/user/Dropbox/Greenberg Lab Sharing/Collaborations/MethylEnh/Manuscript/Figures/Figure_1/Panel-D_Spaghetti/", width = 8, height = 8, units = "cm")
-
-
-## Boxplot
 p2 <- ggplot(Clust_data[Clust_data$cluster == "c2",], aes(x = Day, y = meth.wmean, fill = Tech)) +
   geom_boxplot(outliers = FALSE, alpha = 0.75) +
   coord_cartesian(ylim = c(0,100)) +
@@ -110,19 +83,6 @@ p2 <- ggplot(Clust_data[Clust_data$cluster == "c2",], aes(x = Day, y = meth.wmea
 p2
 #ggsave(filename = "Cluster_2_boxplot.pdf", plot = p2, device = "pdf", path = "/Users/user/Dropbox/Greenberg Lab Sharing/Collaborations/MethylEnh/Manuscript/Figures/Figure_1/Panel-D_Spaghetti/", width = 8, height = 8, units = "cm")
 
-# ## Spaghetti
-# p2 <- ggplot(Clust_stats[Clust_stats$cluster == "c2",], aes(x = Day, y = q50, group = Tech)) +
-#   geom_point(aes(y = q50, color = Tech)) +
-#   geom_line(aes(y = q50, color = Tech,)) +
-#   geom_ribbon(aes(ymin = q25, ymax = q75, fill = Tech), alpha = 0.2) +
-#   coord_cartesian(ylim = c(0,100)) +
-#   labs(y = "% DNAme", x = "c2 - Day") +
-#   theme_bw() + theme(legend.position = "none")
-# p2
-# #ggsave(filename = "Cluster_2_median_ribbon.pdf", plot = p2, device = "pdf", path = "/Users/user/Dropbox/Greenberg Lab Sharing/Collaborations/MethylEnh/Manuscript/Figures/Figure_1/Panel-D_Spaghetti/", width = 8, height = 8, units = "cm")
-
-
-## Boxplot
 p3 <- ggplot(Clust_data[Clust_data$cluster == "c3",], aes(x = Day, y = meth.wmean, fill = Tech)) +
   geom_boxplot(outliers = FALSE, alpha = 0.75) +
   coord_cartesian(ylim = c(0,100)) +
@@ -131,19 +91,6 @@ p3 <- ggplot(Clust_data[Clust_data$cluster == "c3",], aes(x = Day, y = meth.wmea
 p3
 #ggsave(filename = "Cluster_3_boxplot.pdf", plot = p3, device = "pdf", path = "/Users/user/Dropbox/Greenberg Lab Sharing/Collaborations/MethylEnh/Manuscript/Figures/Figure_1/Panel-D_Spaghetti/", width = 8, height = 8, units = "cm")
 
-# ## Spaghetti
-# p3 <- ggplot(Clust_stats[Clust_stats$cluster == "c3",], aes(x = Day, y = q50, group = Tech)) +
-#   geom_point(aes(y = q50, color = Tech)) +
-#   geom_line(aes(y = q50, color = Tech,)) +
-#   geom_ribbon(aes(ymin = q25, ymax = q75, fill = Tech), alpha = 0.2) +
-#   coord_cartesian(ylim = c(0,100)) +
-#   labs(y = "% DNAme", x = "c3 - Day") +
-#   theme_bw() + theme(legend.position = "none")
-# p3
-# #ggsave(filename = "Cluster_3_median_ribbon.pdf", plot = p3, device = "pdf", path = "/Users/user/Dropbox/Greenberg Lab Sharing/Collaborations/MethylEnh/Manuscript/Figures/Figure_1/Panel-D_Spaghetti/", width = 8, height = 8, units = "cm")
-
-
-## Boxplot
 p4 <- ggplot(Clust_data[Clust_data$cluster == "c4",], aes(x = Day, y = meth.wmean, fill = Tech)) +
   geom_boxplot(outliers = FALSE, alpha = 0.75) +
   coord_cartesian(ylim = c(0,100)) +
@@ -152,19 +99,6 @@ p4 <- ggplot(Clust_data[Clust_data$cluster == "c4",], aes(x = Day, y = meth.wmea
 p4
 #ggsave(filename = "Cluster_4_boxplot.pdf", plot = p4, device = "pdf", path = "/Users/user/Dropbox/Greenberg Lab Sharing/Collaborations/MethylEnh/Manuscript/Figures/Figure_1/Panel-D_Spaghetti/", width = 8, height = 8, units = "cm")
 
-# ## Spaghetti
-# p4 <- ggplot(Clust_stats[Clust_stats$cluster == "c4",], aes(x = Day, y = q50, group = Tech)) +
-#   geom_point(aes(y = q50, color = Tech)) +
-#   geom_line(aes(y = q50, color = Tech,)) +
-#   geom_ribbon(aes(ymin = q25, ymax = q75, fill = Tech), alpha = 0.2) +
-#   coord_cartesian(ylim = c(0,100)) +
-#   labs(y = "% DNAme", x = "c4 - Day") +
-#   theme_bw() + theme(legend.position = "none")
-# p4
-# #ggsave(filename = "Cluster_4_median_ribbon.pdf", plot = p4, device = "pdf", path = "/Users/user/Dropbox/Greenberg Lab Sharing/Collaborations/MethylEnh/Manuscript/Figures/Figure_1/Panel-D_Spaghetti/", width = 8, height = 8, units = "cm")
-
-
-## Boxplot
 p5 <- ggplot(Clust_data[Clust_data$cluster == "c5",], aes(x = Day, y = meth.wmean, fill = Tech)) +
   geom_boxplot(outliers = FALSE, alpha = 0.75) +
   coord_cartesian(ylim = c(0,100)) +
@@ -173,33 +107,8 @@ p5 <- ggplot(Clust_data[Clust_data$cluster == "c5",], aes(x = Day, y = meth.wmea
 p5
 #ggsave(filename = "Cluster_5_boxplot.pdf", plot = p5, device = "pdf", path = "/Users/user/Dropbox/Greenberg Lab Sharing/Collaborations/MethylEnh/Manuscript/Figures/Figure_1/Panel-D_Spaghetti/", width = 8, height = 8, units = "cm")
 
-# ## Spaghetti
-# p5 <- ggplot(Clust_stats[Clust_stats$cluster == "c5",], aes(x = Day, y = q50, group = Tech)) +
-#   geom_point(aes(y = q50, color = Tech)) +
-#   geom_line(aes(y = q50, color = Tech,)) +
-#   geom_ribbon(aes(ymin = q25, ymax = q75, fill = Tech), alpha = 0.2) +
-#   coord_cartesian(ylim = c(0,100)) +
-#   labs(y = "% DNAme", x = "c5 - Day") +
-#   theme_bw() + theme(legend.position = "none")
-# p5
-# #ggsave(filename = "Cluster_5_median_ribbon.pdf", plot = p5, device = "pdf", path = "/Users/user/Dropbox/Greenberg Lab Sharing/Collaborations/MethylEnh/Manuscript/Figures/Figure_1/Panel-D_Spaghetti/", width = 8, height = 8, units = "cm")
-
 
 ## Get color legend
-# ## Spaghetti
-# p <- ggplot(Clust_stats[Clust_stats$cluster == "c1",], aes(x = Day, y = q50, group = Tech)) +
-#   geom_point(aes(y = q50, color = Tech)) +
-#   geom_line(aes(y = q50, color = Tech,)) +
-#   geom_ribbon(aes(ymin = q25, ymax = q75, fill = Tech), alpha = 0.2) +
-#   scale_color_hue(labels = c("M-ATAC", "WGBS")) +
-#   scale_fill_hue(labels = c("M-ATAC", "WGBS")) +
-#   labs(y = "% DNAme", x = "c1 - Day", fill = "", color = "") +
-#   theme_bw() + theme(legend.position = "right")
-# p <- cowplot::ggdraw(cowplot::get_legend(p))
-# p
-# #ggsave(filename = "Spaghetti_legend.pdf", plot = p, device = "pdf", path = "/Users/user/Dropbox/Greenberg Lab Sharing/Collaborations/MethylEnh/Manuscript/Figures/Figure_1/Panel-D_Spaghetti/", width = 4, height = 4, units = "cm")
-
-## Boxplot
 p <- ggplot(Clust_data[Clust_data$cluster == "c1",], aes(x = Day, y = meth.wmean, fill = Tech)) +
   geom_boxplot(outliers = FALSE, alpha = 0.75) +
   labs(fill = "Technique") +
@@ -207,7 +116,6 @@ p <- ggplot(Clust_data[Clust_data$cluster == "c1",], aes(x = Day, y = meth.wmean
 p <- cowplot::ggdraw(cowplot::get_legend(p))
 p
 #ggsave(filename = "Boxplot_legend.pdf", plot = p, device = "pdf", path = "/Users/user/Dropbox/Greenberg Lab Sharing/Collaborations/MethylEnh/Manuscript/Figures/Figure_1/Panel-D_Spaghetti/", width = 4, height = 4, units = "cm")
-
 
 
 ## ---------------------------------
@@ -228,19 +136,6 @@ Day_tech <- str_split_fixed(string = Day_tech, pattern = "_", n = 2)
 Static_data$Day <- Day_tech[,1]
 Static_data$Tech <- Day_tech[,2]
 
-# ## Calculate mean DNAme based on the cluster and dataset
-# Static_stats <- Static_data |> group_by(cluster, Dataset) |> summarise(mean = mean(meth.wmean),
-#                                                                      q25 = quantile(meth.wmean, 0.25),
-#                                                                      q50 = quantile(meth.wmean, 0.50),
-#                                                                      q75 = quantile(meth.wmean, 0.75))
-#
-# ## Split $Dataset into two: day and technique
-# Day_tech <- gsub(pattern = "meth.wmean_WT_", replacement = "", x = Static_stats$Dataset)
-# Day_tech <- str_split_fixed(string = Day_tech, pattern = "_", n = 2)
-# Static_stats$Day <- Day_tech[,1]
-# Static_stats$Tech <- Day_tech[,2]
-
-## Boxplot
 p6 <- ggplot(Static_data, aes(x = Day, y = meth.wmean, fill = Tech)) +
   geom_boxplot(outliers = FALSE, alpha = 0.75) +
   coord_cartesian(ylim = c(0,100)) +
@@ -248,15 +143,3 @@ p6 <- ggplot(Static_data, aes(x = Day, y = meth.wmean, fill = Tech)) +
   theme_bw() + theme(legend.position = "none", panel.grid = element_blank())
 p6
 #ggsave(filename = "Static_boxplot.pdf", plot = p6, device = "pdf", path = "/Users/user/Dropbox/Greenberg Lab Sharing/Collaborations/MethylEnh/Manuscript/Figures/Figure_1/Panel-D_Spaghetti/", width = 8, height = 8, units = "cm")
-
-# # ## Spaghetti
-# p6 <- ggplot(Static_stats, aes(x = Day, y = q50, group = Tech)) +
-#   geom_point(aes(y = q50, color = Tech)) +
-#   geom_line(aes(y = q50, color = Tech,)) +
-#   geom_ribbon(aes(ymin = q25, ymax = q75, fill = Tech), alpha = 0.2) +
-#   coord_cartesian(ylim = c(0,100)) +
-#   labs(y = "% DNAme", x = "Static - Day") +
-#   theme_bw() + theme(legend.position = "none")
-# p6
-# #ggsave(filename = "Static_median_ribbon.pdf", plot = p6, device = "pdf", path = "/Users/user/Dropbox/Greenberg Lab Sharing/Collaborations/MethylEnh/Manuscript/Figures/Figure_1/Panel-D_Spaghetti/", width = 8, height = 8, units = "cm")
-

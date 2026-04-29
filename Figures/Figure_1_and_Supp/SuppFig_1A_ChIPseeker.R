@@ -1,6 +1,5 @@
-## 13.02.2026
-## ChIPseeker: Do annotation of MATAC peaks
-## Supp Fig 1A for paper
+## ChIPseeker annotation of M-ATAC peaks
+## Supplemental Figure 1A
 library(ChIPseeker)
 library(org.Mm.eg.db)
 library(TxDb.Mmusculus.UCSC.mm10.knownGene)
@@ -14,7 +13,7 @@ Peaks <- read.table(file = Current_peak_file, header = FALSE, sep = '\t')
 colnames(Peaks) <- c("chrom", "start", "end")
 Peaks <- makeGRangesFromDataFrame(df = Peaks)
 
-## Annotate without "Downstream (<=300)". --> I tried an it didn't really eliminate it. I guess I can overwrite.
+## Annotate without "Downstream (<=300)". --> I tried and it didn't really eliminate it. I guess I can overwrite.
 Peaks <- annotatePeak(Peaks, tssRegion=c(-3000, 3000),
                       TxDb=TxDb.Mmusculus.UCSC.mm10.knownGene,
                       annoDb="org.Mm.eg.db",
@@ -24,11 +23,8 @@ Peaks <- annotatePeak(Peaks, tssRegion=c(-3000, 3000),
 #plotAnnoPie(Peaks)
 plotAnnoBar(Peaks)
 
-## This is the previous plot
-## How can I get numbers? --> Not easy to parse annotation category for exons/introns
-
 ## ------------------------------
-## Version 2:
+## Custom plotting:
 Peaks_df <- as.data.frame(Peaks)
 
 ## Simplify annotation label for easier filtering
