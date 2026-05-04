@@ -1,7 +1,5 @@
-## 2026.03.20
-## Compare DE peaks, color dots by MATAC cluster
-## Based on 2025_10_13_TCseq_plot_K27ac.R
-## Implement for DiffBind
+## Import H3K4me1 and H3K27ac DE peaks. Color by MATAC cluster
+## Figure 2C,D, Supplemental Figure 3D, and Supplemental Figure 4D
 library(ggplot2)
 library(dplyr)
 library(stringr)
@@ -10,8 +8,7 @@ setwd("/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Results/DiffBind/")
 
 ## -- Run automatically for all comparisons, both marks.
 
-Genotypes <- c("TKO")
-#Genotypes <- c("DKO", "TKO")
+Genotypes <- c("DKO", "TKO")
 Days <- c("D0", "D2", "D4")
 Marks <- c("K4me1", "K27ac")
 
@@ -83,11 +80,6 @@ for(i in 1:length(Genotypes)) {
       DB_ov <- bt.intersect(a = DiffBind_mark, b = peaks_clust, c = TRUE)
       colnames(DB_ov) <- c(colnames(DiffBind_mark), "num_ov")
       table(DB_ov$num_ov)
-      # 0:   2,916
-      # 1:  25,455
-      # 2:     947
-      # 3:      46
-      # 4:       4
 
       ## Treat no-overlaps, single-overlaps, and multiple-overlaps independently.
       DB_NoOv <- DB_ov[DB_ov$num_ov == 0,]
@@ -129,7 +121,6 @@ for(i in 1:length(Genotypes)) {
 
       ## Combine all the overlaps
       DB_final <- rbind(DB_NoOv, DB_SingleOv, DB_MultiOv_final) |> arrange(chr, start, end)
-      ## Consider exporting table
 
       rm(DB_NoOv, DB_SingleOv, DB_MultiOv, DB_MultiOv_final)
 
@@ -148,9 +139,6 @@ for(i in 1:length(Genotypes)) {
       ## Change color for those peaks that are not differential
       DB_final$Color[DB_final$direction == "none"] <- "Not_DE"
 
-      # table(DB_final$Color)
-      # table(DB_final[,c("MATAC.cluster", "Color")])
-
       if (gen2 == "DKO") { label2 <- "Tet KO"
       } else if (gen2 == "TKO") { label2 <- "Dnmt KO"
       }
@@ -167,8 +155,8 @@ for(i in 1:length(Genotypes)) {
         theme_bw() + theme(panel.grid = element_blank(), legend.position = "none")
       p
       Name_file <- paste0(group1,"_vs_",group2,"_",mark,"_DE_volcano.png")
-      ggsave(filename = Name_file, device = "png", plot = p, width = 12, height = 12, units = "cm",
-             path = paste0("/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Plots/DiffBind/",Name_folder,"/"))
+      # ggsave(filename = Name_file, device = "png", plot = p, width = 12, height = 12, units = "cm",
+      #        path = paste0("/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Plots/DiffBind/",Name_folder,"/"))
 
       ## Colored by MATAC cluster
       p <- ggplot(DB_final, aes(x = logFC, y = -log10(FDR), color = Color)) +
@@ -180,8 +168,8 @@ for(i in 1:length(Genotypes)) {
         theme_bw() + theme(panel.grid = element_blank(), legend.position = "none")
       p
       Name_file <- paste0(group1,"_vs_",group2,"_",mark,"_DE_volcano_byCluster.png")
-      ggsave(filename = Name_file, device = "png", plot = p, width = 12, height = 12, units = "cm",
-             path = paste0("/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Plots/DiffBind/",Name_folder,"/"))
+      # ggsave(filename = Name_file, device = "png", plot = p, width = 12, height = 12, units = "cm",
+      #        path = paste0("/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Plots/DiffBind/",Name_folder,"/"))
 
       ## -- Create summary table -- ##
       tot <- nrow(DB_final)
@@ -200,8 +188,8 @@ for(i in 1:length(Genotypes)) {
       Sum_table <- data.frame("Category" = c("Total", "Not_DE", "Up", "Down", Clust_table$code),
                               "Value" = c(tot, not_de, tot_up, tot_down, Clust_table$freq))
 
-      write.table(x = Sum_table, file = paste0(Name_folder,"/MATAC_clust_labeling/Category_DEpeaks_",group1,"_vs_",group2,"_",mark,".txt"),
-                  append = FALSE, quote = FALSE, sep = '\t', eol = '\n', na = "", row.names = FALSE, col.names = FALSE)
+      # write.table(x = Sum_table, file = paste0(Name_folder,"/MATAC_clust_labeling/Category_DEpeaks_",group1,"_vs_",group2,"_",mark,".txt"),
+      #             append = FALSE, quote = FALSE, sep = '\t', eol = '\n', na = "", row.names = FALSE, col.names = FALSE)
     }
   }
 }

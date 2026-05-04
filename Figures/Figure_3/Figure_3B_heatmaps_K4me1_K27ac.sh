@@ -1,8 +1,7 @@
-## -- Figure 3: Heatmaps of K4me1 and K27ac
-## Use the same order as MATAC; add 500bp on both sides to see mark spreading.
+## H3K4me1 and H3K27ac heatmaps
+## Figure 2B, Supplemental Figure 3A-C, and Supplemental Figure 4A-C
 
 cd /scratch/Marlet/
-
 
 ## --------------------- ##
 ## -- K4me1 - Dynamic -- ##
@@ -241,37 +240,6 @@ plotHeatmap -m /scratch/Marlet/TCseq/WT_MATAC/Dynamic/K5/computeMatrix/TKO_D0-D2
 --samplesLabel "TKO-D0" "TKO-D2" "TKO-D4" \
 --xAxisLabel "NonProm static peak" --startLabel "5'" --endLabel "3'"
 
-
-# ## -- Plot profiles
-# ## WT K4me1 static
-# plotProfile \
-# -m /scratch/Marlet/TCseq/WT_MATAC/Dynamic/K5/computeMatrix/WT_D0-D2-D4_K4me1signal_DS_K5_static_ud500bp.gz \
-# -o /scratch/Marlet/TCseq/WT_MATAC/Dynamic/K5/Plots/K4me1/WT_D0-D2-D4_K4me1signal_DS_K5_ud500bp_static_Profile.pdf \
-# --plotType lines --plotHeight 6 --plotWidth 6 \
-# --colors "#266799" "#266799" "#266799" \
-# --yMin 0 --yMax 0.9 --yAxisLabel "K4me1" \
-# --samplesLabel "WT-D0" "WT-D2" "WT-D4" \
-# --startLabel "5'" --endLabel "3'"
-# 
-# ## DKO K4me1 static
-# plotProfile \
-# -m /scratch/Marlet/TCseq/WT_MATAC/Dynamic/K5/computeMatrix/DKO_D0-D2-D4_K4me1signal_DS_K5_static_ud500bp.gz \
-# -o /scratch/Marlet/TCseq/WT_MATAC/Dynamic/K5/Plots/K4me1/DKO_D0-D2-D4_K4me1signal_DS_K5_ud500bp_static_Profile.pdf \
-# --plotType lines --plotHeight 6 --plotWidth 6 \
-# --colors "#4c4c4c" "#4c4c4c" "#4c4c4c" \
-# --yMin 0 --yMax 0.9 --yAxisLabel "K4me1" \
-# --samplesLabel "DKO-D0" "DKO-D2" "DKO-D4" \
-# --startLabel "5'" --endLabel "3'"
-# 
-# ## TKO K4me1 static
-# plotProfile \
-# -m /scratch/Marlet/TCseq/WT_MATAC/Dynamic/K5/computeMatrix/TKO_D0-D2-D4_K4me1signal_DS_K5_static_ud500bp.gz \
-# -o /scratch/Marlet/TCseq/WT_MATAC/Dynamic/K5/Plots/K4me1/TKO_D0-D2-D4_K4me1signal_DS_K5_ud500bp_static_Profile.pdf \
-# --plotType lines --plotHeight 6 --plotWidth 6 \
-# --colors "#f68532" "#f68532" "#f68532" \
-# --yMin 0 --yMax 0.9 --yAxisLabel "K4me1" \
-# --samplesLabel "TKO-D0" "TKO-D2" "TKO-D4" \
-# --startLabel "5'" --endLabel "3'"
 
 ## -- K4me1 static profiles: Plot three genotypes together
 
@@ -604,37 +572,6 @@ plotHeatmap -m /scratch/Marlet/TCseq/WT_MATAC/Dynamic/K5/computeMatrix/TKO_D0-D2
 --samplesLabel "TKO-D0" "TKO-D2" "TKO-D4" \
 --xAxisLabel "NonProm static peak" --startLabel "5'" --endLabel "3'"
 
-
-# ## -- Plot profiles
-# ## WT K27ac static
-# plotProfile \
-# -m /scratch/Marlet/TCseq/WT_MATAC/Dynamic/K5/computeMatrix/WT_D0-D2-D4_K27acsignal_DS_K5_static_ud500bp.gz \
-# -o /scratch/Marlet/TCseq/WT_MATAC/Dynamic/K5/Plots/K27ac/WT_D0-D2-D4_K27acsignal_DS_K5_ud500bp_static_Profile.pdf \
-# --plotType lines --plotHeight 6 --plotWidth 6 \
-# --colors "#266799" "#266799" "#266799" \
-# --yMin 0 --yMax 1.1 --yAxisLabel "K27ac" \
-# --samplesLabel "WT-D0" "WT-D2" "WT-D4" \
-# --startLabel "5'" --endLabel "3'"
-# 
-# ## DKO K27ac static
-# plotProfile \
-# -m /scratch/Marlet/TCseq/WT_MATAC/Dynamic/K5/computeMatrix/DKO_D0-D2-D4_K27acsignal_DS_K5_static_ud500bp.gz \
-# -o /scratch/Marlet/TCseq/WT_MATAC/Dynamic/K5/Plots/K27ac/DKO_D0-D2-D4_K27acsignal_DS_K5_ud500bp_static_Profile.pdf \
-# --plotType lines --plotHeight 6 --plotWidth 6 \
-# --colors "#4c4c4c" "#4c4c4c" "#4c4c4c" \
-# --yMin 0 --yMax 1.1 --yAxisLabel "K27ac" \
-# --samplesLabel "DKO-D0" "DKO-D2" "DKO-D4" \
-# --startLabel "5'" --endLabel "3'"
-# 
-# ## TKO K27ac static
-# plotProfile \
-# -m /scratch/Marlet/TCseq/WT_MATAC/Dynamic/K5/computeMatrix/TKO_D0-D2-D4_K27acsignal_DS_K5_static_ud500bp.gz \
-# -o /scratch/Marlet/TCseq/WT_MATAC/Dynamic/K5/Plots/K27ac/TKO_D0-D2-D4_K27acsignal_DS_K5_ud500bp_static_Profile.pdf \
-# --plotType lines --plotHeight 6 --plotWidth 6 \
-# --colors "#f68532" "#f68532" "#f68532" \
-# --yMin 0 --yMax 1.1 --yAxisLabel "K27ac" \
-# --samplesLabel "TKO-D0" "TKO-D2" "TKO-D4" \
-# --startLabel "5'" --endLabel "3'"
 
 ## -- K27ac static profiles: Plot three genotypes together
 
