@@ -1,5 +1,5 @@
-## 22.12.2025
 ## Plotting 5hmC hMATAC_D2 vs hMATAC_D4
+## Supplemental Figure 7D
 library(ggplot2)
 library(dplyr)
 library(tidyr)
@@ -20,10 +20,10 @@ All_data <- All_data[, c("chr", "start", "end", "num.cpgs", "meth.wmean", "Datas
 All_data <- pivot_wider(All_data, names_from = "Dataset", values_from = c("num.cpgs", "meth.wmean"))
 All_data$coord <- str_c(str_c(All_data$chr, All_data$start, sep = ":"), All_data$end, sep = "-")
 length(unique(All_data$coord))
-rm(list = c("WT_D0_hMATAC", "WT_D2_hMATAC", "WT_D4_hMATAC"))
+rm(WT_D0_hMATAC, WT_D2_hMATAC, WT_D4_hMATAC)
 
-## ---- Plot 5hmC: D2_hMATAC vs D4_hMATAC (NonProm peaks)
-#Folder_path <- "/Users/user/Dropbox/Greenberg Lab Sharing/Collaborations/MethylEnh/Manuscript/Figures/Figure_5/Panel-D_scatterplot_hMATAC_D2_vs_D4/"
+## ---- Plot
+#Folder_path <- "Panel-D_scatterplot_hMATAC_D2_vs_D4/"
 
 plot <- ggplot(All_data, aes(x = meth.wmean_WT_D2_hMATAC, y = meth.wmean_WT_D4_hMATAC)) +
   stat_bin2d(na.rm = TRUE, bins = 50) +
@@ -32,14 +32,10 @@ plot <- ggplot(All_data, aes(x = meth.wmean_WT_D2_hMATAC, y = meth.wmean_WT_D4_h
   coord_cartesian(xlim = c(0,100), ylim = c(0,100)) +
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0)) +
-  labs(x = "5hmC hMATAC - D2", y = "5hmC hMATAC - D4") +
+  labs(x = "5hmC hMATAC EpiLCs", y = "5hmC hMATAC ExEpiLCs") +
   theme_bw() + theme(panel.grid = element_blank(), legend.position = "none")
 plot
-# ## png
-# ggsave(filename = "Adj_WT_D2_hMATAC-5hmC_v_WT_D4_hMATAC-5hmC__Coordinates_WT_hMATAC_NonPromPeakome.png",
-#        plot = plot, device = "png", path = Folder_path,
-#        width = 10, height = 10, units = "cm")
-# ## pdf
+
 # ggsave(filename = "Adj_WT_D2_hMATAC-5hmC_v_WT_D4_hMATAC-5hmC__Coordinates_WT_hMATAC_NonPromPeakome.pdf",
 #        plot = plot, device = "pdf", path = Folder_path,
 #        width = 10, height = 10, units = "cm")

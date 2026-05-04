@@ -1,6 +1,5 @@
-## 16.02.2026
-## 5hmC levels in and outside of WT_hMATAC
-## Separate WT_hMATAC by genomic category
+## 5hmC in hMATAC peaks; separate by DMR intersection
+## Figure 5B
 library(ggplot2)
 library(dplyr)
 library(bedtoolsr)
@@ -14,29 +13,17 @@ setwd("/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Results/Measure_DNAme/DNAme
 ## ----------------------------- ##
 
 ## --------
-## Make annotatr object
+## Make annotatr object from peakome
 WT_hMATAC <- read_regions(con = "/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Data/peaks/hMATAC/WT_D4_hMATAC_mergedreps_2507.filtered.bed", genome = "mm10", format = "bed")
 ## Build annotations
 Annotations <- build_annotations(genome = 'mm10', annotations = c("mm10_basicgenes", "mm10_cpgs"))
 
-## Annotate WT_hMATAC
-n_orig <- length(WT_hMATAC)
+## Annotate WT_hMATAC peaks
 WT_hMATAC <- annotate_regions(regions = WT_hMATAC, annotations = Annotations, ignore.strand = TRUE)
-length(WT_hMATAC)
-length(WT_hMATAC)/n_orig
-# 7.5 annotations per hMATAC peak
-rm(Annotations)
-
 # Coerce to data.frame
 WT_hMATAC <- data.frame(WT_hMATAC)
 ## Add coordinate
 WT_hMATAC$coord <- str_c(str_c(WT_hMATAC$seqnames, WT_hMATAC$start, sep = ":"), WT_hMATAC$end, sep = "-")
-
-table(table(WT_hMATAC$coord))
-## Every hMATAC peak was called between 1 and 304 times.
-length(unique(WT_hMATAC$coord))/n_orig
-## 100% of WT_hMATAC peaks were annotated
-
 ## Keep only annot.type to remove duplicates (i.e. if a peak maps to multiple intron ids, it will only be counted once)
 WT_hMATAC <- WT_hMATAC |> dplyr::select(!c(annot.seqnames,
                                            annot.start,
@@ -47,10 +34,6 @@ WT_hMATAC <- WT_hMATAC |> dplyr::select(!c(annot.seqnames,
                                            annot.tx_id,
                                            annot.gene_id,
                                            annot.symbol)) |> distinct()
-nrow(WT_hMATAC)/n_orig
-# 2.93 annotations per peak
-table(table(WT_hMATAC$coord))
-## Every peak was called between 1 and 9 times (which corresponds to the number of categories)
 
 ## Prioritize annotation; keep only one row per peak
 unique(WT_hMATAC$annot.type)
@@ -99,9 +82,6 @@ for(i in 1:length(Coords)){
   CpG_onerow <- prioritize_annot(Sub_coord, Order_priority)
   WT_hMATAC_one_annot <- rbind(WT_hMATAC_one_annot, CpG_onerow)
 }
-
-sort(table(WT_hMATAC_one_annot$annot.type), decreasing = TRUE)
-## 1.8x more promoters_cgi than promoters_noncgi
 rm(Coords, i, Sub_coord, CpG_onerow)
 
 ## Factorize annotation type
@@ -117,9 +97,9 @@ WT_hMATAC_one_annot$coord <- str_c(str_c(WT_hMATAC_one_annot$chr, WT_hMATAC_one_
 
 # ## Export
 # write.table(x = WT_hMATAC_one_annot, append = FALSE, quote = FALSE, sep = '\t', eol = '\n', na = "", row.names = FALSE, col.names = TRUE,
-#             file = "/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Data/peaks/hMATAC/WT_D4_hMATAC_mergedreps_2507.filtered_annotated.bed")
+#             file = "hMATAC/WT_D4_hMATAC_mergedreps_2507.filtered_annotated.bed")
 
-rm(WT_hMATAC, n_orig, Order_priority, prioritize_annot)
+rm(WT_hMATAC, Order_priority, prioritize_annot, Annotations)
 ## --------
 
 ## --------------------------------
@@ -129,13 +109,12 @@ rm(WT_hMATAC, n_orig, Order_priority, prioritize_annot)
 ## ---- Incorporate 5hmC measurements ---- ##
 ## --------------------------------------- ##
 
-# ## If continuing from above, rename variable
-# hMATAC_annotation <- WT_hMATAC_one_annot
-# rm(WT_hMATAC_one_annot)
+## If continuing from above, rename variable
+hMATAC_annotation <- WT_hMATAC_one_annot
+rm(WT_hMATAC_one_annot)
 
-## If jumping from outside, read table
-hMATAC_annotation <- read.table(file = "/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Data/peaks/hMATAC/WT_D4_hMATAC_mergedreps_2507.filtered_annotated.bed", header = TRUE, sep = '\t')
-unique(hMATAC_annotation$annot.type)
+# ## If jumping from outside, read table
+# hMATAC_annotation <- read.table(file = "/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Data/peaks/hMATAC/WT_D4_hMATAC_mergedreps_2507.filtered_annotated.bed", header = TRUE, sep = '\t')
 
 ## -- Read 5hmC measurements
 WT_hMATAC <- read.table(file = "meanDNAme_WT_D4_hMATAC_mergedreps__Coordinates_WT_D4_hMATAC_mergedreps_2507_filteredBroadPeak__2025_12_10.txt", header = TRUE, sep = '\t')
@@ -196,7 +175,7 @@ p_promCGI <- ggplot(WT_hMATAC_i_DMR[WT_hMATAC_i_DMR$annot.simple == "prom_cgi",]
   labs(y = "5hmC %", title = "CGI promoter") +
   coord_cartesian(ylim = c(0, 8)) +
   my_theme
-#p_promCGI
+p_promCGI
 
 ## Non-CGI promoter
 p_promNonCGI <- ggplot(WT_hMATAC_i_DMR[WT_hMATAC_i_DMR$annot.simple == "prom_noncgi",],
@@ -206,7 +185,7 @@ p_promNonCGI <- ggplot(WT_hMATAC_i_DMR[WT_hMATAC_i_DMR$annot.simple == "prom_non
   labs(y = "5hmC %", title = "Non-CGI promoter") +
   coord_cartesian(ylim = c(0, 40)) +
   my_theme
-#p_promNonCGI
+p_promNonCGI
 
 ## Outside of promoters
 p_NonProm <- ggplot(WT_hMATAC_i_DMR[WT_hMATAC_i_DMR$annot.simple == "Non_prom",],
@@ -216,23 +195,21 @@ p_NonProm <- ggplot(WT_hMATAC_i_DMR[WT_hMATAC_i_DMR$annot.simple == "Non_prom",]
   labs(y = "5hmC %", title = "Non-promoter") +
   coord_cartesian(ylim = c(0, 40)) +
   my_theme
-#p_NonProm
+p_NonProm
 
 ## Combine
 p_Master <- gridExtra::grid.arrange(p_promCGI, p_promNonCGI, p_NonProm, nrow = 1)
-# ggsave(filename = "WT_D4_hMATAC_5hmC_in-out_DMRs_byCat.pdf", plot = p_Master, device = "pdf", width = 12, height = 6, units = "cm",
-#        path = "/Users/user/Dropbox/Greenberg Lab Sharing/Collaborations/MethylEnh/Manuscript/Figures/Figure_5/Panel-B_Violin_plot_hMATAC_in_DMRs")
+# ggsave(filename = "WT_D4_hMATAC_5hmC_in-out_DMRs_byCat.pdf", plot = p_Master, device = "pdf", width = 12, height = 6, units = "cm")
 
 ## --------------------------------
 
 ## -- Summary
-
 Summary_hMATAC <- WT_hMATAC_i_DMR |> group_by(annot.simple, DMR_intersect) |> summarise("Count" = n(),
                                                                                         "Mean_5hmC" = round(mean(meth.wmean), digits = 4),
                                                                                         "Q25_5hmC" = round(quantile(meth.wmean, 0.25), digits = 4),
                                                                                         "Q50_5hmC" = round(quantile(meth.wmean, 0.50), digits = 4),
                                                                                         "Q75_5hmC" = round(quantile(meth.wmean, 0.75), digits = 4))
-View(Summary_hMATAC)
+Summary_hMATAC
 
 ## -- Wilcox testing
 
@@ -270,5 +247,5 @@ Summary_hMATAC <- Summary_hMATAC |> arrange(annot.simple, DMR_intersect)
 
 ## Export
 # write.table(x = Summary_hMATAC, append = FALSE, quote = FALSE, sep = "\t", eol = "\n", na = "", row.names = FALSE, col.names = TRUE,
-#             file = "/Users/user/Dropbox/Greenberg Lab Sharing/Collaborations/MethylEnh/Manuscript/Figures/Figure_5/Panel-B_Violin_plot_hMATAC_in_DMRs/Info.txt")
+#             file = "Violin_plot_hMATAC_in_DMRs/Info.txt")
 

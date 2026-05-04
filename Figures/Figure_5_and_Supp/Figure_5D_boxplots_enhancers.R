@@ -1,9 +1,7 @@
-## 2025.12.09
-## Plotting 5hmC distribution depending on enhancer type
-## Edit 2026.03.31: Added actvM category
+## Plotting 5hmC distribution per enhancer type
+## Figure 5D
 library(ggplot2)
 library(dplyr)
-#library(tidyr)
 setwd("/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Results/Measure_DNAme/DNAme_ROIs/WT_Master_Enhancer_Peakome_v6/")
 
 ## Read data and merge
@@ -50,33 +48,7 @@ All_data_long$Class_ext[All_data_long$Day == "D0" & All_data_long$Class_ext == "
 All_data_long$Class <- factor(All_data_long$Class, levels = c("actv", "prim", "inac", "othr"))
 All_data_long$Class_ext <- factor(All_data_long$Class_ext, levels = c("actv", "actvM", "prim", "inac", "othr"))
 
-
-## ---- Using Class --
-## Boxplot w outliers
-ggplot(All_data_long[All_data_long$Class %in% c("actv", "prim"),], aes(x = Day, y = meth.wmean_hMATAC, fill = Class)) +
-  geom_boxplot(na.rm = TRUE, outliers = TRUE, outlier.shape = 21, outlier.size = 1) +
-  scale_fill_manual(values = c("#E5614E", "#F0AC4B")) +
-  theme_bw() + theme(legend.position = "none", panel.grid = element_blank())
-
-## Boxplot wo outliers
-p <- ggplot(All_data_long[All_data_long$Class %in% c("actv", "prim"),], aes(x = Day, y = meth.wmean_hMATAC, fill = Class)) +
-  geom_boxplot(na.rm = TRUE, outliers = FALSE) +
-  scale_fill_manual(values = c("#E5614E", "#F0AC4B")) +
-  labs(y = "5hmC %") +
-  coord_cartesian(ylim = c(0,30)) +
-  theme_bw() + theme(legend.position = "none", panel.grid = element_blank())
-p
-# ggsave(filename = "WT_D0-D2-D4_5hmC_hMATAC_per_enhancer_type.pdf", plot = p, device = "pdf", width = 9, height = 9, units = "cm",
-#        path = "/Users/user/Dropbox/Greenberg Lab Sharing/Collaborations/MethylEnh/Manuscript/Figures/Figure_5/Panel-D_Boxplots_5hmC_active_vs_primed_enhancers/")
-
-
 ## ---- Using Class_ext --
-## Boxplot w outliers
-ggplot(All_data_long[All_data_long$Class_ext %in% c("actv", "actvM", "prim"),], aes(x = Day, y = meth.wmean_hMATAC, fill = Class_ext)) +
-  geom_boxplot(na.rm = TRUE, outliers = TRUE, outlier.shape = 21, outlier.size = 1) +
-  scale_fill_manual(values = c("#E5614E", "#97C124", "#F0AC4B")) +
-  theme_bw() + theme(legend.position = "none", panel.grid = element_blank())
-
 ## Boxplot wo outliers
 p <- ggplot(All_data_long[All_data_long$Class_ext %in% c("actv", "actvM", "prim"),], aes(x = Day, y = meth.wmean_hMATAC, fill = Class_ext)) +
   geom_boxplot(na.rm = TRUE, outliers = FALSE) +
@@ -86,8 +58,7 @@ p <- ggplot(All_data_long[All_data_long$Class_ext %in% c("actv", "actvM", "prim"
   theme_bw() + theme(legend.position = "none", panel.grid = element_blank())
 p
 # ggsave(filename = "WT_D0-D2-D4_5hmC_hMATAC_per_enhancer_type_wActvM.pdf", plot = p, device = "pdf", width = 9, height = 9, units = "cm",
-#        path = "/Users/user/Dropbox/Greenberg Lab Sharing/Collaborations/MethylEnh/Manuscript/Figures/Figure_5/Panel-D_Boxplots_5hmC_active_vs_primed_enhancers/")
-
+#        path = "Panel-D_Boxplots_5hmC_active_vs_primed_enhancers/")
 
 ## -- Statistics -----------------------------
 
@@ -152,9 +123,10 @@ t_Output <- rbind(t_Output, data.frame("Day" = "D4",
                                        "A_median_5hmC" = round(c(median(hmC_actv), median(hmC_actvM), median(hmC_actv)), digits = 4),
                                        "B_median_5hmC" = round(c(median(hmC_actvM), median(hmC_prim), median(hmC_prim)), digits = 4),
                                        "pval" = c(t.a_aM$p.value, t.aM_p$p.value, t.a_p$p.value)))
+t_Output$paj <- p.adjust(t_Output$pval)
 
 ## -- Export results
-Name_file <- "/Users/user/Dropbox/Greenberg Lab Sharing/Collaborations/MethylEnh/Manuscript/Figures/Figure_5/Panel-D_Boxplots_5hmC_active_vs_primed_enhancers/Info_wActvM.txt"
+Name_file <- "Panel-D_Boxplots_5hmC_active_vs_primed_enhancers/Info_wActvM.txt"
 # cat("Summary stats\n", file = Name_file)
 # write.table(x = Summary_hmC, file = Name_file, append = TRUE, quote = FALSE, sep = "\t", eol = "\n", na = "", row.names = FALSE, col.names = TRUE)
 # cat("\n\nWilcox test\n", file = Name_file, append = TRUE)
