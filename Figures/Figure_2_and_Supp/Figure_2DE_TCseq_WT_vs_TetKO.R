@@ -17,7 +17,7 @@ group_2 <- paste("DKO_", day, sep = "")
 
 ## Load environment
 if(day == "D2") {
-  load("environments/TCseq_WT_D2_vs_DKO_D2_2025_09_10_MATAC-5clusters_TEST-FAIL.RData")
+  load("environments/TCseq_WT_D2_vs_DKO_D2_2025_09_10_MATAC-5clusters_TEST-EXIT.RData")
 } else {
   load(paste("environments/TCseq_",group_1,"_vs_",group_2,"_2025_09_10_MATAC-5clusters.RData", sep = ""))
 }
