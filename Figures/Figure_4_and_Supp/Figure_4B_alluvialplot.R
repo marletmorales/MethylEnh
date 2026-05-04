@@ -1,12 +1,12 @@
-## 2025.09.22
-## K4me1-defined Enhancer Dynamics: Analyzing category swapping through differentiation (D0->D2->D4)
+## Alluvial plot of enhancer dynamics: category swapping through differentiation (mESCs -> EpiLCs -> ExEpiLCs)
+## Figure 4B
 library(ggplot2)
 library(ggalluvial)
 library(dplyr)
 setwd("/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Results/Set_operations/Enhancers_intersect_v6/")
 gen <- "WT"
 
-## Import all enhancers
+## -- Import all enhancers
 Name_file <- paste(gen,"_Enhancer_peakome/",gen,"_Master_Enhancer_Peakome_v6_single-class.bed", sep = "")
 Enhancers <- read.table(file = Name_file, header = FALSE, sep = '\t')
 colnames(Enhancers) <- c("chr", "start", "end", "D0_class", "D2_class", "D4_class")
@@ -14,14 +14,10 @@ Enhancers$D0_class <- factor(Enhancers$D0_class, levels = c("actv", "prim", "ina
 Enhancers$D2_class <- factor(Enhancers$D2_class, levels = c("actv", "prim", "inac", "othr"))
 Enhancers$D4_class <- factor(Enhancers$D4_class, levels = c("actv", "prim", "inac", "othr"))
 
-
 ## -- Enhancer flow between days
 ## Simplify the data.frame by counting the frequency of each combination of states (4x4x4 - 1; 63 columns instead of >59K)
 Cats <- lamisc::count_duplicates(Enhancers[, c("D0_class", "D2_class", "D4_class")])
-Cats <- dplyr::arrange(Cats, D0_class, D2_class, D4_class)
-
-## How abundant is each combination?
-quantile(Cats$dupe_count)
+Cats <- arrange(Cats, D0_class, D2_class, D4_class)
 
 ## Plot flow
 p <- ggplot(data = Cats, aes(axis1 = D0_class, axis2 = D2_class, axis3 = D4_class, y = dupe_count)) +
@@ -35,9 +31,7 @@ p
 
 ## Export plot
 Name_plot <- paste(gen,"_Master_Enhancer_Peakome_v6_Flux.pdf", sep = "")
-# ggsave(filename = Name_plot, plot = p, device = "pdf",
-#        path = paste("/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Plots/Set_operations/Enhancers_intersect_v6/",gen,"_Enhancer_peakome/", sep = ""),
-#        width = 12, height = 10, units = "cm")
+# ggsave(filename = Name_plot, plot = p, device = "pdf", width = 12, height = 10, units = "cm")
 
 ## -- Create summary table
 ## Pivot to long
@@ -45,7 +39,6 @@ Enhancers_long <- Enhancers |> tidyr::pivot_longer(cols = c("D0_class", "D2_clas
 Enhancers_long$Day <- factor(Enhancers_long$Day, levels = c("D0_class", "D2_class", "D4_class"))
 ## Group and summarize
 Enhancers_summary <- Enhancers_long |> group_by(Day, Class) |> summarise("Count" = n())
-
 ## Pivot to wide
 Enhancers_summary <- Enhancers_summary |> tidyr::pivot_wider(names_from = Day, values_from = Count)
 Enhancers_summary
