@@ -1,11 +1,14 @@
-## 2026.04.27
+## 2026.05.04
 ## Analyze TF enrichment in open regions with high and low 5hmC
 ## Adapted from "2026_04_23_TFmotifView_Set-3_5hmC_rich_v2.Rmd"
+## Edit 2026.05.04: Separate plot into two (over-rep; under-rep) to simplify figure reading
 library(stringr)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(pheatmap)
+library(grid)
+library(gridExtra)
 setwd("/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Results/TF_motif_enrichment/TFmotifView/Jaspar2026/Set-3_5hmC_rich/Results/")
 
 ## -- Part 1: Import 5hmC data ----
@@ -146,15 +149,17 @@ hmC_data$Category <- factor(hmC_data$Category, levels = c("Primary", "Secondary"
 hmC_data$Call <- factor(hmC_data$Call, levels = c("MethylPlus", "Dual", "MethylMinus", "Little effect", "inconclusive", "NotAssessed"))
 
 
-## -- Part 7: Plot all TFs, regardless of CG ----
-## Sub: Expressed, significant
+## -- Part 7: Separate Over and Under ----
 
-## -- Prepare matrix
-hmC_data_matrix <- hmC_data |> select(motif.ID, enrichment_peaks_vs_control)
-colnames(hmC_data_matrix) <- c("motif.ID", "enrich")
-hmC_data_matrix <- as.matrix(hmC_data_matrix |> tibble::column_to_rownames("motif.ID"))
+hmC_Over <- hmC_data |> filter(Significance == "Over")
+hmC_Under <- hmC_data |> filter(Significance == "Under")
+## Calculate values from the 'Under' point of view
+hmC_Under <- hmC_Under |> mutate("Inverse_enrichment" = percent_control_peaks_with_motif/percent_peaks_with_motif)
 
-## -- Prepare annotation df
+
+## -- Part 8: Prepare variables for plotting ----
+
+## -- Create Annotation
 Annotation <- hmC_data |> select(TF, motif.ID, cluster_number, name, Call, Category, Significance)
 ## Rename columns and factors for simplicity
 colnames(Annotation) <- c("TF", "motif.ID", "clust_num", "name", "Call", "Category", "Sig")
@@ -166,7 +171,6 @@ Annotation <- Annotation |> tibble::column_to_rownames("motif.ID")
 Annotation <- Annotation |> mutate(isCG = case_when(
   Category == "NoCG" ~ "NoCG",
   TRUE ~ "CG"))
-
 Annot_colors <- list(Call = c("MethylPlus" = "#CB2260",
                               "Dual" = "orange2",
                               "MethylMinus" = "#305FD2",
@@ -183,89 +187,151 @@ Annot_colors <- list(Call = c("MethylPlus" = "#CB2260",
                      Sig = c("High 5hmC" = "#AF0663",
                              "Low 5hmC" = "gray90"))
 
-## -- Plot
-Pheat_wNoCG <- pheatmap(
-  hmC_data_matrix,
-  color = rev(colorRampPalette(RColorBrewer::brewer.pal(name = "BrBG", n = 9))(101)),
+## -- Create color scale
+## Limit for color scale
+# col_lim <- max(c(hmC_Over$enrichment_peaks_vs_control, hmC_Under$Inverse_enrichment))
+# col_lim <- log2(col_lim*1.05)
+col_lim <- 1.05
+
+## Color palette: subset the brown segment from BrBg
+BrBg_brown <- colorRampPalette(RColorBrewer::brewer.pal(name = "BrBG", n = 9))(203)[1:101]
+BrBg_brown <- rev(BrBg_brown)
+
+## ---------------------------------
+## -- Part 8: Heatmap with NoCG ----
+
+## -- Under (low 5hmC)
+matrix_Under <- hmC_Under |> select(motif.ID, Inverse_enrichment)
+colnames(matrix_Under) <- c("motif.ID", "enrich")
+matrix_Under <- as.matrix(matrix_Under |> tibble::column_to_rownames("motif.ID"))
+Pheat_Under <- pheatmap(
+  mat             = log2(matrix_Under),
+  color           = BrBg_brown,
   cluster_rows    = TRUE,
   cluster_cols    = FALSE,
-  cutree_rows     = 2,
   cellwidth       = 70,
+  cellheight      = 0.75,
   border_color    = NA,
   drop_levels     = TRUE,
   show_rownames   = FALSE,
-  angle_col       = 45,
-  treeheight_row  = 40,
-  breaks          = seq(0.3, 1.83, length.out = 101),
-  annotation_row  = Annotation |> select(Call, isCG, Sig),
-  annotation_colors = Annot_colors,
-  annotation_legend = TRUE
+  show_colnames   = FALSE,
+  treeheight_row  = 25,
+  breaks          = seq(0, col_lim, length.out = 101),
+  legend          = FALSE,
+  annotation_row       = Annotation |> select(Call, isCG, Sig),
+  annotation_colors    = Annot_colors,
+  annotation_names_row = FALSE,
+  annotation_legend    = FALSE
 )
-# ggsave(filename = "Supp_Pheatmap_Set-3_5hmC_rich_wNoCG.pdf", plot = Pheat_wNoCG, width = 12, height = 16, units = "cm",
+# ggsave(filename = "Supp_Pheatmap_Set-3_5hmC_rich_wNoCG_v2_Low5hmC.pdf", plot = Pheat_Under, width = 6, height = 3, units = "cm",
+#        path = "/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Plots/TF_motif_enrichment/TFmotifView/Set-3_5hmC_rich/")
+dev.off()
+
+## -- Over (high 5hmC)
+matrix_Over <- hmC_Over |> select(motif.ID, enrichment_peaks_vs_control)
+colnames(matrix_Over) <- c("motif.ID", "enrich")
+matrix_Over <- as.matrix(matrix_Over |> tibble::column_to_rownames("motif.ID"))
+Pheat_Over <- pheatmap(
+  mat             = log2(matrix_Over),
+  color           = BrBg_brown,
+  cluster_rows    = TRUE,
+  cluster_cols    = FALSE,
+  cellwidth       = 70,
+  cellheight      = 0.75,
+  border_color    = NA,
+  drop_levels     = TRUE,
+  show_rownames   = FALSE,
+  show_colnames   = FALSE,
+  treeheight_row  = 25,
+  breaks          = seq(0, col_lim, length.out = 101),
+  legend          = FALSE,
+  annotation_row       = Annotation |> select(Call, isCG, Sig),
+  annotation_colors    = Annot_colors,
+  annotation_names_row = FALSE,
+  annotation_legend    = FALSE
+)
+# ggsave(filename = "Supp_Pheatmap_Set-3_5hmC_rich_wNoCG_v2_High5hmC.pdf", plot = Pheat_Over, width = 6, height = 13, units = "cm",
+#        path = "/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Plots/TF_motif_enrichment/TFmotifView/Set-3_5hmC_rich/")
+dev.off()
+
+## -- Get legend
+Pheat_Legend <- pheatmap(
+  mat = log2(matrix_Over), legend = TRUE,
+  color = BrBg_brown, breaks = seq(0, col_lim, length.out=101),
+  cluster_rows = FALSE, cluster_cols = FALSE, cellwidth = 45,
+  border_color = NA, drop_levels = TRUE,
+  show_rownames = FALSE, show_colnames = FALSE,
+  annotation_row = Annotation |> select(Call, isCG, Sig),
+  annotation_colors = Annot_colors,
+  annotation_names_row = FALSE,
+  annotation_legend = TRUE,
+  silent = TRUE)
+## Extract legend grobs in order
+index_legend <- which(Pheat_Legend$gtable$layout$name == "legend")
+index_annot <- which(Pheat_Legend$gtable$layout$name == "annotation_legend")
+Grobs_Legend <- Pheat_Legend$gtable$grobs[c(index_legend, index_annot)]
+Pheat_Legend <- grid.arrange(grobs = Grobs_Legend, ncol = 2, widths = c(1,2))
+
+## Export
+# ggsave(filename = "Legend_Set-3_wNoCG.pdf", plot = Pheat_Legend, width = 6, height = 8, units = "cm",
 #        path = "/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Plots/TF_motif_enrichment/TFmotifView/Set-3_5hmC_rich/")
 dev.off()
 
 
-## -- Part 8: Plot CG only ----
-## Sub: Expressed, significant
+## ----------------------------------------------
+## -- Part 9: Heatmap with annotated CG ----
 
-## -- Filter for CG content, prepare matrix
-CG_data <- hmC_data |> filter(Category != "NoCG")
-CG_data_matrix <- CG_data |> select(motif.ID, enrichment_peaks_vs_control)
-colnames(CG_data_matrix) <- c("motif.ID", "enrich")
-CG_data_matrix <- as.matrix(CG_data_matrix |> tibble::column_to_rownames("motif.ID"))
-
-## -- Plot
-Pheat_CG <- pheatmap(
-  CG_data_matrix,
-  color = rev(colorRampPalette(RColorBrewer::brewer.pal(name = "BrBG", n = 9))(101)),
+## -- Under (low 5hmC)
+matrix_Under_CG <- hmC_Under |> filter(Call != "NotAssessed") |> select(motif.ID, Inverse_enrichment)
+colnames(matrix_Under_CG) <- c("motif.ID", "enrich")
+matrix_Under_CG <- as.matrix(matrix_Under_CG |> tibble::column_to_rownames("motif.ID"))
+Pheat_Under_CG <- pheatmap(
+  mat             = log2(matrix_Under_CG),
+  color           = BrBg_brown,
   cluster_rows    = TRUE,
   cluster_cols    = FALSE,
-  cutree_rows     = 2,
   cellwidth       = 70,
+  cellheight      = 1.8,
   border_color    = NA,
   drop_levels     = TRUE,
   show_rownames   = FALSE,
-  angle_col       = 45,
-  treeheight_row  = 40,
-  breaks          = seq(0.3, 1.83, length.out = 101),
-  annotation_row  = Annotation |> select(Call, Sig),
-  annotation_colors = Annot_colors,
-  annotation_legend = TRUE
+  show_colnames   = FALSE,
+  treeheight_row  = 25,
+  breaks          = seq(0, col_lim, length.out = 101),
+  legend          = FALSE,
+  annotation_row       = Annotation |> select(Call, Sig),
+  annotation_colors    = Annot_colors,
+  annotation_names_row = FALSE,
+  annotation_legend    = FALSE
 )
-# ggsave(filename = "Supp_Pheatmap_Set-3_5hmC_rich_CGonly.pdf", plot = Pheat_CG, width = 12, height = 16, units = "cm",
+# ggsave(filename = "Supp_Pheatmap_Set-3_5hmC_rich_AnnotCG_v2_Low5hmC.pdf", plot = Pheat_Under_CG, width = 6, height = 3, units = "cm",
 #        path = "/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Plots/TF_motif_enrichment/TFmotifView/Set-3_5hmC_rich/")
 dev.off()
 
-
-## -- Part 9: Plot annotated CG only ----
-
-Annot_data <- CG_data |> filter(Call != "NotAssessed")
-Annot_data_matrix <- Annot_data |> select(motif.ID, enrichment_peaks_vs_control)
-colnames(Annot_data_matrix) <- c("motif.ID", "enrich")
-Annot_data_matrix <- as.matrix(Annot_data_matrix |> tibble::column_to_rownames("motif.ID"))
-
-## -- Plot
-Pheat_AnnotCG <- pheatmap(
-  Annot_data_matrix,
-  color = rev(colorRampPalette(RColorBrewer::brewer.pal(name = "BrBG", n = 9))(101)),
+## -- Over (high 5hmC)
+matrix_Over_CG <- hmC_Over |> filter(Call != "NotAssessed") |> select(motif.ID, enrichment_peaks_vs_control)
+colnames(matrix_Over_CG) <- c("motif.ID", "enrich")
+matrix_Over_CG <- as.matrix(matrix_Over_CG |> tibble::column_to_rownames("motif.ID"))
+Pheat_Over_CG <- pheatmap(
+  mat             = log2(matrix_Over_CG),
+  color           = BrBg_brown,
   cluster_rows    = TRUE,
   cluster_cols    = FALSE,
-  cutree_rows     = 2,
   cellwidth       = 70,
+  cellheight      = 1.8,
   border_color    = NA,
   drop_levels     = TRUE,
   show_rownames   = FALSE,
-  angle_col       = 45,
-  treeheight_row  = 40,
-  breaks          = seq(0.3, 1.83, length.out = 101),
-  annotation_row  = Annotation |> select(Call, Sig),
-  annotation_colors = Annot_colors,
-  annotation_legend = TRUE
+  show_colnames   = FALSE,
+  treeheight_row  = 25,
+  breaks          = seq(0, col_lim, length.out = 101),
+  legend          = FALSE,
+  annotation_row       = Annotation |> select(Call, Sig),
+  annotation_colors    = Annot_colors,
+  annotation_names_row = FALSE,
+  annotation_legend    = FALSE
 )
-# ggsave(filename = "Pheatmap_Set-3_5hmC_rich_CG-annot.pdf", plot = Pheat_AnnotCG, width = 12, height = 16, units = "cm",
+# ggsave(filename = "Supp_Pheatmap_Set-3_5hmC_rich_AnnotCG_v2_High5hmC.pdf", plot = Pheat_Over_CG, width = 6, height = 8, units = "cm",
 #        path = "/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Plots/TF_motif_enrichment/TFmotifView/Set-3_5hmC_rich/")
 dev.off()
-
-
 
