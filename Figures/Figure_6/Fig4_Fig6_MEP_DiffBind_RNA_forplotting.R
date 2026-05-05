@@ -1,3 +1,7 @@
+## Correlating H3K27ac gain/loss with 5mC (Figure 4) and RNA expression (Figure 6)
+## Figure 4D,E and Supplemental Figure 6A,B
+## Figure 6D and Supplemental Figure 9A,B
+
 ## 09.03.2026
 ## Approaching the project backwards. Start with enhancers, then go into DiffBind results
 ## Edit from 2026_03_03_Link_Enhancers-GeneExp_with_TCseq_v3.R

@@ -1,5 +1,5 @@
-## 2026.02.16
-## Plot gene expression according to linked enhancers
+## Plotting normalized read counts for genes associated to each type of enhancer
+## Figure 6C and Supplemental Figure 8D
 library(dplyr)
 library(forcats)
 library(ggplot2)
@@ -44,16 +44,16 @@ Region_gene_parsed[,c("D0_class_ext", "D2_class_ext", "D4_class_ext")] <- Factor
 
 ## -- Classify each gene based on which enhancers is it associated to
 ## If a gene is linked to multiple enhancers, keep only enhancers of a single class with the following priority:
-## actvM > actv > prim > inac
+## actvM = actv > prim > inac
 
 ## -- For D0
-## DO NOT do actvM (doesn't make any sense and makes the plot confusing)
+## DO NOT do actvM (the category is too small and doesn't make sense at D0)
 D0_actv <- Region_gene_parsed |> filter(D0_class_ext == "actv") |> pull(gene_symbol) |> unique()
 D0_prim <- Region_gene_parsed |> filter(D0_class_ext == "prim") |> pull(gene_symbol) |> unique()
 D0_inac <- Region_gene_parsed |> filter(D0_class_ext == "inac") |> pull(gene_symbol) |> unique()
-## If already in actv/actvM, drop from prim
+## If already in actv, drop from prim
 D0_prim <- D0_prim[!D0_prim %in% c(D0_actv)]
-## If already in actv/actvM/prim, drop from inac
+## If already in actv/prim, drop from inac
 D0_inac <- D0_inac[!D0_inac %in% c(D0_actv, D0_prim)]
 ## Convert to df
 D0_actv <- data.frame("gene_symbol" = D0_actv, "Day" = "D0", "Class_ext" = "actv")
@@ -124,7 +124,7 @@ All_days$Class_ext <- factor(All_days$Class_ext, levels = c("actv", "actvM", "pr
 
 ## -- Plot time!
 
-Plot_folder <- "/Users/user/Dropbox/Greenberg Lab Sharing/Collaborations/MethylEnh/Manuscript/Figures/Figure_6/Panel-A_Boxplot_WT_GeneExp_by_EnhancerCat/"
+Plot_folder <- "Figure_6/Panel-C_Boxplot_WT_GeneExp_by_EnhancerCat/"
 
 ## -- Plot all days
 ggplot(All_days, aes(x = Class_ext, y = log2(WT_avg+1), fill = Class_ext)) +
@@ -141,15 +141,7 @@ p0b <- ggplot(All_days[All_days$Day == "D0",], aes(x = Class_ext, y = log2(WT_av
   labs(x = "Enhancer categories", y = "log2(WT+1)") +
   theme_bw() + theme(legend.position = "none", panel.grid = element_blank())
 p0b
-ggsave(filename = "WT_D0_EnhCats_Boxplot.pdf", plot = p0b, device = "pdf", path = Plot_folder, width = 8, height = 8, units = "cm")
-
-p0v <- ggplot(All_days[All_days$Day == "D0",], aes(x = Class_ext, y = log2(WT_avg+1), fill = Class_ext)) +
-  geom_violin(quantile.linetype = "solid") +
-  scale_fill_manual(values = c("#E5614E", "#97C124", "#F0AC4B", "#77BEF0"), drop = FALSE) +
-  labs(x = "Enhancer categories", y = "log2(WT+1)") +
-  theme_bw() + theme(legend.position = "none", panel.grid = element_blank())
-p0v
-ggsave(filename = "WT_D0_EnhCats_Violin.pdf", plot = p0v, device = "pdf", path = Plot_folder, width = 8, height = 8, units = "cm")
+#ggsave(filename = "WT_D0_EnhCats_Boxplot.pdf", plot = p0b, device = "pdf", path = Plot_folder, width = 8, height = 8, units = "cm")
 
 
 ## -- D2
@@ -159,15 +151,7 @@ p2b <- ggplot(All_days[All_days$Day == "D2",], aes(x = Class_ext, y = log2(WT_av
   labs(x = "Enhancer categories", y = "log2(WT+1)") +
   theme_bw() + theme(legend.position = "none", panel.grid = element_blank())
 p2b
-ggsave(filename = "WT_D2_EnhCats_Boxplot.pdf", plot = p2b, device = "pdf", path = Plot_folder, width = 8, height = 8, units = "cm")
-
-p2v <- ggplot(All_days[All_days$Day == "D2",], aes(x = Class_ext, y = log2(WT_avg+1), fill = Class_ext)) +
-  geom_violin(quantile.linetype = "solid") +
-  scale_fill_manual(values = c("#E5614E", "#97C124", "#F0AC4B", "#77BEF0"), drop = FALSE) +
-  labs(x = "Enhancer categories", y = "log2(WT+1)") +
-  theme_bw() + theme(legend.position = "none", panel.grid = element_blank())
-p2v
-ggsave(filename = "WT_D2_EnhCats_Violin.pdf", plot = p2v, device = "pdf", path = Plot_folder, width = 8, height = 8, units = "cm")
+#ggsave(filename = "WT_D2_EnhCats_Boxplot.pdf", plot = p2b, device = "pdf", path = Plot_folder, width = 8, height = 8, units = "cm")
 
 
 ## -- D4
@@ -178,14 +162,6 @@ p4b <- ggplot(All_days[All_days$Day == "D4",], aes(x = Class_ext, y = log2(WT_av
   theme_bw() + theme(legend.position = "none", panel.grid = element_blank())
 p4b
 ggsave(filename = "WT_D4_EnhCats_Boxplot.pdf", plot = p4b, device = "pdf", path = Plot_folder, width = 8, height = 8, units = "cm")
-
-p4v <- ggplot(All_days[All_days$Day == "D4",], aes(x = Class_ext, y = log2(WT_avg+1), fill = Class_ext)) +
-  geom_violin(quantile.linetype = "solid") +
-  scale_fill_manual(values = c("#E5614E", "#97C124", "#F0AC4B", "#77BEF0"), drop = FALSE) +
-  labs(x = "Enhancer categories", y = "log2(WT+1)") +
-  theme_bw() + theme(legend.position = "none", panel.grid = element_blank())
-p4v
-ggsave(filename = "WT_D4_EnhCats_Violin.pdf", plot = p4v, device = "pdf", path = Plot_folder, width = 8, height = 8, units = "cm")
 
 
 ## -- Summary
@@ -198,12 +174,4 @@ Cats_summary
 
 ## Export table
 #write.table(x = Cats_summary, file = paste0(Plot_folder, "Info.txt"), append = FALSE, quote = FALSE, sep = '\t', eol = '\n', na = "", row.names = FALSE, col.names = TRUE)
-
-
-
-
-
-
-
-
 

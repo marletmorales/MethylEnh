@@ -1,6 +1,5 @@
-## 2026.04.17
-## Enrichment Analysis for genes associated with gain/loss of H3K27ac in KOs
-## Inspired by: https://sib-swiss.github.io/enrichment-analysis-training/
+## Enrichment analysis of genes associated with gain/loss of H3K27ac in KOs
+## Figure 6E
 library(clusterProfiler)
 library(enrichplot)
 library(org.Mm.eg.db)
@@ -13,7 +12,7 @@ Dir <- c("up", "down")
 Enh <- c("actv", "actvM", "prim")
 Combinations <- expand.grid("Enhancer" = Enh, "Direction" = Dir)
 
-## -----------
+## -------------
 ## -- Dnmt TKO
 
 ## Create empty list of genes
@@ -41,30 +40,20 @@ for (i in 1:nrow(Combinations)){
 }
 rm(i, Gene_EntrezID, Gene_names, Name_file)
 
-## -- Run enrichment; add gene symbols
+## Run enrichment; add gene symbols
 TKO_enrich <- compareCluster(geneCluster = Gene_list_TKO, fun = enrichGO, OrgDb = org.Mm.eg.db, ont="BP")
 TKO_enrich <- setReadable(TKO_enrich, OrgDb = org.Mm.eg.db, keyType="ENTREZID")
 
 ## Dotplot (showCategory=5 by default)
-TKO_dotplot <- dotplot(TKO_enrich, showCategory=4, font.size = 8) +
-  set_enrichplot_color(type = "fill", transform='log10', colors=c("#ae017e", "#feebe2")) +
-  scale_size(range=c(2, 8))
-TKO_dotplot
-ggsave(filename = "WT_D4_vs_TKO_D4_DE-K27ac_clusterProfiler_actv-actvM-prim.pdf", plot = TKO_dotplot, device = "pdf", width = 14, height = 14, units = "cm",
-       path = "/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Plots/GeneOntologies/clusterProfiler/")
-
-## Colored by genotype
 TKO_dotplot_color <- dotplot(TKO_enrich, showCategory=4, font.size = 8) +
   set_enrichplot_color(type = "fill", transform='log10', colors=c("#FF6A00", "#FFF0E6")) +
   scale_size(range=c(2, 8))
 TKO_dotplot_color
-ggsave(filename = "WT_D4_vs_TKO_D4_DE-K27ac_clusterProfiler_actv-actvM-prim_color.pdf", plot = TKO_dotplot_color, device = "pdf", width = 14, height = 14, units = "cm",
-       path = "/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Plots/GeneOntologies/clusterProfiler/")
+# ggsave(filename = "WT_D4_vs_TKO_D4_DE-K27ac_clusterProfiler_actv-actvM-prim_color.pdf", plot = TKO_dotplot_color, device = "pdf", width = 14, height = 14, units = "cm",
+#        path = "/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Plots/GeneOntologies/clusterProfiler/")
 
 
-## --------------------------
-
-## -----------
+## -------------
 ## -- Tet DKO
 
 ## Create empty list of genes
@@ -97,16 +86,10 @@ DKO_enrich <- compareCluster(geneCluster = Gene_list_DKO, fun = enrichGO, OrgDb 
 DKO_enrich <- setReadable(DKO_enrich, OrgDb = org.Mm.eg.db, keyType="ENTREZID")
 
 ## Dotplot (showCategory=5 by default)
-DKO_dotplot <- dotplot(DKO_enrich, showCategory=3, font.size = 8) +
-  set_enrichplot_color(type = "fill", transform='log10', colors=c("#ae017e", "#feebe2")) +
-  scale_size(range=c(2, 8))
-DKO_dotplot
-ggsave(filename = "WT_D4_vs_DKO_D4_DE-K27ac_clusterProfiler_actv-actvM-prim.pdf", plot = DKO_dotplot, device = "pdf", width = 14, height = 14, units = "cm",
-       path = "/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Plots/GeneOntologies/clusterProfiler/")
-
 DKO_dotplot_color <- dotplot(DKO_enrich, showCategory=3, font.size = 8) +
   set_enrichplot_color(type = "fill", transform='log10', colors=c("#33334E", "#E1E1E6")) +
   scale_size(range=c(2, 8))
 DKO_dotplot_color
-ggsave(filename = "WT_D4_vs_DKO_D4_DE-K27ac_clusterProfiler_actv-actvM-prim_color.pdf", plot = DKO_dotplot_color, device = "pdf", width = 14, height = 14, units = "cm",
-       path = "/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Plots/GeneOntologies/clusterProfiler/")
+# ggsave(filename = "WT_D4_vs_DKO_D4_DE-K27ac_clusterProfiler_actv-actvM-prim_color.pdf", plot = DKO_dotplot_color, device = "pdf", width = 14, height = 14, units = "cm",
+#        path = "/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Plots/GeneOntologies/clusterProfiler/")
+

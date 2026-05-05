@@ -1,6 +1,5 @@
-## 2026.04.08
-## Link gene expression to levels of 5mC and 5hmC
-## Based on 2026_04_08_5mC-5hmC_vs_RNAseq.R; adapted for paper figure
+## Compare 5(h)mC levels at enhancers vs expression of target genes
+## Supplemental Figure 9C
 library(dplyr)
 library(ggplot2)
 setwd("/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Results/MEP_hMATAC_RNAseq/")
@@ -40,7 +39,7 @@ RNA_data_longer$Mark <- factor(RNA_data_longer$Mark, levels = c("hMATAC", "MATAC
 ## ---- Plot time ---- ##
 ## ------------------- ##
 
-Output_folder <- "/Users/user/Dropbox/Greenberg Lab Sharing/Collaborations/MethylEnh/Manuscript/Figures/Figure_6/Supp_5mC_5hmC_vs_RNA"
+Output_folder <- "Figure_6/Supp_5mC_5hmC_vs_RNA"
 
 ## -------
 ## -- D0
@@ -101,34 +100,8 @@ Name_file <- "WT_D4_hMATAC_MATAC_vs_RNAseq_byEnhClassExt_aap.png"
 
 
 ## ----------------------------------------------
-## ----------------------------------------------
 
-## ---- Additional plots and analysis ---- ##
-
-## -- Relationship 5hmC vs 5mC
-## D0
-ggplot(RNA_data, aes(x = meth.wmean_WT_D0_MATAC, y = meth.wmean_WT_D0_hMATAC)) +
-  geom_point(na.rm = TRUE, alpha = 0.2, size = 0.5) +
-  geom_smooth(method = "lm", na.rm = TRUE, se = TRUE, alpha = 0.4, color = "blue", linewidth = 0.3) +
-  theme_bw() +
-  facet_wrap(~D0_class)
-
-## D2
-ggplot(RNA_data, aes(x = meth.wmean_WT_D2_MATAC, y = meth.wmean_WT_D2_hMATAC)) +
-  geom_point(na.rm = TRUE, alpha = 0.2, size = 0.5) +
-  geom_smooth(method = "lm", na.rm = TRUE, se = TRUE, alpha = 0.4, color = "blue", linewidth = 0.3) +
-  theme_bw() +
-  facet_wrap(~D2_class_ext)
-
-## D4
-ggplot(RNA_data, aes(x = meth.wmean_WT_D4_MATAC, y = meth.wmean_WT_D4_hMATAC)) +
-  geom_point(na.rm = TRUE, alpha = 0.2, size = 0.5) +
-  geom_smooth(method = "lm", na.rm = TRUE, se = TRUE, alpha = 0.4, color = "blue", linewidth = 0.3) +
-  theme_bw() +
-  facet_wrap(~D4_class_ext)
-
-
-## -- Correlation coefficient 5(h)mC and RNA expression
+## -- Correlation coefficient of 5(h)mC and RNA expression
 
 tmp_D0 <- RNA_D0_longer |> select(chr, start, end, D0_class, gene_symbol, WT_D0_avg, Day, Mark, meth.wmean) |> filter(!is.na(WT_D0_avg))
 tmp_D2 <- RNA_D2_longer |> select(chr, start, end, D2_class_ext, gene_symbol, WT_D2_avg, Day, Mark, meth.wmean) |> filter(!is.na(WT_D2_avg))
