@@ -1,2 +1,2 @@
 ## Figure 4D,E and Supplemental Figure 6
-## See scripts for Figure 6.
+## See scripts for Figure 6 (Fig4DE_Fig6D_DEplots.R)
