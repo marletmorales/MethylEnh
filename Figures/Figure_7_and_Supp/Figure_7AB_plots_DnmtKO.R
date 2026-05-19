@@ -1,5 +1,6 @@
 ## TF motif enrichment in Dnmt KO differentially-accessible regions
 ## Figure 7A,B and Supplemental Figure 10B
+## Edit 2026.05.19: Changed color of 'Dual' category
 library(dplyr)
 library(tidyr)
 library(ggplot2)
@@ -46,7 +47,7 @@ Annotation <- Annotation |> tibble::column_to_rownames("motif.ID")
 Annotation <- Annotation |> mutate(isCG = case_when(
   Category == "NoCG" ~ "NoCG",
   TRUE ~ "CG"))
-Annot_colors <- list(Call = c("MethylPlus" = "#CB2260", "Dual" = "orange2", "MethylMinus" = "#305FD2", "Little effect" = "slategray2", "inconclusive" = "gray60", "NotAssessed" = "white"),
+Annot_colors <- list(Call = c("MethylPlus" = "#CB2260", "Dual" = "#c5d107", "MethylMinus" = "#305FD2", "Little effect" = "slategray2", "inconclusive" = "gray60", "NotAssessed" = "white"),
                      Category = c("Primary" = "#D43F3AFF", "Secondary" = "#E18727FF", "Tertiary" = "#EEA236FF", "Quaternary" = "#46B8DAFF", "NoCG" = "gray30"),
                      D0 = c("Sig_both" = "gray40", "Sig_up" = "#F68532", "Sig_down" = "#266799", "Sig_none" = "gray70"),
                      D2 = c("Sig_both" = "gray40", "Sig_up" = "#F68532", "Sig_down" = "#266799", "Sig_none" = "gray70"),
@@ -127,7 +128,7 @@ Scatter_sig
 Scatter_call <- ggplot(CG_motifs, aes(x = enrichment_peaks_vs_control_down, y = enrichment_peaks_vs_control_up, color = Call)) +
   geom_point(alpha = 0.7) +
   scale_color_manual(values = c("MethylPlus" = "#CB2260",
-                                "Dual" = "orange2",
+                                "Dual" = "#c5d107",
                                 "MethylMinus" = "#305FD2",
                                 "Little effect" = "slategray2",
                                 "inconclusive" = "gray60")) +

@@ -2,6 +2,7 @@
 ## Analyze TF enrichment in open regions with high and low 5hmC
 ## Adapted from "2026_04_23_TFmotifView_Set-3_5hmC_rich_v2.Rmd"
 ## Edit 2026.05.04: Separate plot into two (over-rep; under-rep) to simplify figure reading
+## Edit 2026.05.19: Changed color of 'Dual' category
 library(stringr)
 library(dplyr)
 library(tidyr)
@@ -172,7 +173,7 @@ Annotation <- Annotation |> mutate(isCG = case_when(
   Category == "NoCG" ~ "NoCG",
   TRUE ~ "CG"))
 Annot_colors <- list(Call = c("MethylPlus" = "#CB2260",
-                              "Dual" = "orange2",
+                              "Dual" = "#c5d107",
                               "MethylMinus" = "#305FD2",
                               "Little effect" = "slategray2",
                               "inconclusive" = "gray60",

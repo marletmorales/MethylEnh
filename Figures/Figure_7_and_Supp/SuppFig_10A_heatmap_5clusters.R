@@ -1,5 +1,6 @@
 ## TF motif enrichment in 5 dynamic clusters
 ## Suplemental Figure 10A
+## Edit 2026.05.19: Changed color of 'Dual' category
 library(stringr)
 library(dplyr)
 library(tidyr)
@@ -65,7 +66,7 @@ Annotation <- Annotation |> mutate(isCG = case_when(
   Category == "NoCG" ~ "NoCG",
   TRUE ~ "CG"))
 Annot_colors <- list(Call = c("MethylPlus" = "#CB2260",
-                              "Dual" = "orange2",
+                              "Dual" = "#c5d107",
                               "MethylMinus" = "#305FD2",
                               "Little effect" = "slategray2",
                               "inconclusive" = "gray60",
