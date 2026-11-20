@@ -7,7 +7,7 @@ setwd("/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Results/Measure_DNAme/DNAme
 
 ## Read data and merge
 All_data <- read.table(file = "WT_D0-D2-D4_hMATAC__Coordinates_WT_Master_Enhancer_Peakome_v6.txt", header = TRUE, sep = '\t')
-Ext_class <- read.table(file = "/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Results/Set_operations/Enhancers_intersect_v6/WT_Enhancer_peakome/WT_Master_Enhancer_Peakome_v6_single-class_wActvM.txt", header = TRUE, sep = '\t')
+Ext_class <- read.table(file = "/Volumes/MMF_IJM/Greenberg_Lab/M-ATAC_Project/Results/Set_operations/Enhancers_intersect_v6/WT_Enhancer_peakome/WT_Master_Enhancer_Peakome_v6_single-class_wActvM_v2.txt", header = TRUE, sep = '\t')
 All_data <- left_join(x = All_data, y = Ext_class)
 rm(Ext_class)
 
@@ -51,9 +51,15 @@ All_data_long$Class_ext <- factor(All_data_long$Class_ext, levels = c("actv", "a
 
 ## ---- Using Class_ext --
 ## Boxplot wo outliers
+Color_scale <- c("actv" = "#b1c848",
+                 "actvM" = "#2cb11b",
+                 "prim" = "#1bb6af",
+                 "inac" = "#485d7b",
+                 "othr" = "#d7d7d7")
+
 p <- ggplot(All_data_long[All_data_long$Class_ext %in% c("actv", "actvM", "prim"),], aes(x = Day, y = meth.wmean_hMATAC, fill = Class_ext)) +
   geom_boxplot(na.rm = TRUE, outliers = FALSE) +
-  scale_fill_manual(values = c("#E5614E", "#97C124", "#F0AC4B")) +
+  scale_fill_manual(values = Color_scale) +
   labs(y = "5hmC %") +
   coord_cartesian(ylim = c(0,30)) +
   theme_bw() + theme(legend.position = "none", panel.grid = element_blank())
@@ -145,7 +151,7 @@ Name_file <- "Panel-D_Boxplots_5hmC_active_vs_primed_enhancers/Info_wActvM.txt"
 
 p <- ggplot(All_data_long[All_data_long$Class_ext %in% c("actv", "actvM", "prim"),], aes(x = Day, y = meth.wmean_hMATAC, fill = Class_ext)) +
   geom_boxplot(na.rm = TRUE, outliers = FALSE) +
-  scale_fill_manual(values = c("#E5614E", "#97C124", "#F0AC4B")) +
+  scale_fill_manual(values = Color_scale) +
   labs(y = "5hmC %") +
   coord_cartesian(ylim = c(0,30)) +
   theme_bw() + theme(legend.position = "none", panel.grid = element_blank()) + facet_wrap(~Class_ext)
